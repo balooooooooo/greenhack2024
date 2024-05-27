@@ -1,29 +1,147 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 
 app = Flask(__name__)
 
-data = pd.read_csv("dataset.csv")
-print(data)
+import pandas as pd
+from datetime import datetime
 
-class IdeaDataset:
+class Dataset:
+    """
+    Class for handling datasets containing both ideas and comments.
+    """
     def __init__(self, path: str):
+        self.path = path
+        self.ideas_dict = {}
+        self.comments = []
+        self.load_ideas()
+        self.load_comments()
+        self.associate_comments_with_ideas()
 
+    def load_ideas(self):
+        """
+        Parse ideas from the first sheet
+        """
+        ideas_table = pd.read_excel(self.path, sheet_name='ideas')
+        for _, row in ideas_table.iterrows():
+            idea = Idea(row)
+            idea.check_required_ids()
+            self.ideas_dict[idea.idea_id] = idea
+
+    def load_comments(self):
+        """
+        Parse comments from the second sheet
+        """
+        comments_table = pd.read_excel(self.path, sheet_name='comments')
+        for _, row in comments_table.iterrows():
+            comment = Comment(row)
+            comment.check_required_ids()
+            self.comments.append(comment)
+
+    def associate_comments_with_ideas(self):
+        """
+        Connects comments to ideas
+        """
+        for comment in self.comments:
+            idea = self.ideas_dict.get(comment.idea_id)
+            if idea:
+                idea.add_comment(comment)
+            else:
+                raise ValueError(f"idea_id: {comment.idea_id} mentioned in comment {comment.comment_id} not found")
+
+    def get_idea_by_id(self, idea_id):
+        return self.ideas_dict.get(idea_id)
+
+    def sort_ideas_by_datetime(self):
+        return sorted(self.ideas_dict.values(), key=lambda idea: idea.datetime)
+
+    def sort_ideas_by_kudos(self):
+        return sorted(self.ideas_dict.values(), key=lambda idea: idea.kudos, reverse=True)
+
+    def get_ideas_info(self):
+        """
+        Get necessary information for displaying ideas.
+        """
+        return [
+            {
+                'name': idea.name,
+                'introduction': idea.introduction,
+                'name_1': idea.name_1,
+                'kudos': idea.kudos
+            }
+            for idea in self.ideas_dict.values()
+        ]
+
+class BaseEntry:
     """
-    Load the entire dataset of the ideas
+    Template for comment or idea
     """
 
+    def __init__(self, row: pd.Series):
+        for column in row.index:
+            setattr(self, column, row[column])
+
+    def check_required_ids(self):
+        raise NotImplementedError("Subclasses should implement this method")
+
+class Idea(BaseEntry):
+    """
+    Represents a single idea in the dataset.
+    """
+
+    def __init__(self, row: pd.Series):
+        super().__init__(row)
+        self.comments = []
+
+    def add_comment(self, comment):
+        self.comments.append(comment)
+
+    def get_comments(self):
+        return self.comments
+
+    def check_required_ids(self):
+        if not hasattr(self, 'idea_id'):
+            raise IndexError("Attempted to parse an idea, but column 'idea_id' not found")
+        if not hasattr(self, 'datetime'):
+            raise IndexError("Attempted to parse an idea, but column 'datetime' not found")
+        if not hasattr(self, 'kudos'):
+            raise IndexError("Attempted to parse an idea, but column 'kudos' not found")
+
+class Comment(BaseEntry):
+    """
+    Represents a single comment in the dataset.
+    """
+
+    def check_required_ids(self):
+        if not hasattr(self, 'idea_id'):
+            raise IndexError("Attempted to parse a comment, but column 'idea_id' not found")
+        if not hasattr(self, 'comment_id'):
+            raise IndexError("Attempted to parse a comment, but column 'comment_id' not found")
+
+
+dataset = Dataset('dataset.xlsx')
 
 
 @app.route('/')
-def trending():
-    # Example data, in real application fetch data from your source
-    repos = [
-        {"name": "THU-MIG/yolov10", "description": "YOLOv10: Real-Time End-to-End Object Detection", "stars": 2399, "stars_today": 331, "language": "Python", "built_by": ["user1", "user2", "user3"]},
-        {"name": "khoj-ai/khoj", "description": "Your AI second brain.", "stars": 8716, "stars_today": 747, "language": "Python", "built_by": ["user4", "user5", "user6"]},
-        {"name": "ente-io/ente", "description": "Fully open source, End to End Encrypted alternative to Google Photos.", "stars": 8423, "stars_today": 264, "language": "Dart", "built_by": ["user7", "user8", "user9"]},
+def index():
+    sort_by = request.args.get('sort_by', 'datetime')
+    if sort_by == 'kudos':
+        ideas = dataset.sort_ideas_by_kudos()
+    else:
+        ideas = dataset.sort_ideas_by_datetime()
+
+    ideas_info = [
+        {
+            'name': idea.name,
+            'introduction': idea.introduction,
+            'name_1': idea.name_1,
+            'kudos': idea.kudos
+        }
+        for idea in ideas
     ]
-    return render_template('idea_overview.html', repos=repos)
+
+    return render_template('idea_overview.html', ideas=ideas_info)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

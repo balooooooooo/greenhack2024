@@ -3,63 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending Repositories</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Ideas</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .d-flex {
+            display: flex;
+        }
+        .justify-content-between {
+            justify-content: space-between;
+        }
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+        .align-items-center {
+            align-items: center;
+        }
+        h1 {
+            color: #58a6ff;
+        }
+        .btn-group .btn {
+            border: 1px solid #30363d;
+            padding: 10px 20px;
+            text-decoration: none;
+            margin-left: 5px;
+            border-radius: 5px;
+            color: #c9d1d9;
+        }
+        .btn-primary {
+            background-color: #238636;
+        }
+        .btn-secondary {
+            background-color: #21262d;
+        }
+        .list-group {
+            list-style: none;
+            padding: 0;
+        }
+        .list-group-item {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            padding: 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+        .idea-name {
+            font-size: 1.5em;
+            color: #58a6ff;
+        }
+        .idea-introduction, .idea-author, .idea-kudos {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Trending</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Repositories <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Developers</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
     <div class="container mt-5">
-        <h1 class="text-white mb-4">Trending</h1>
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Repositories</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Developers</a>
-                    </li>
-                </ul>
+        <div class="d-flex justify-content-between mb-3 align-items-center">
+            <h1>Ideas</h1>
+            <div class="btn-group" role="group">
+                <a href="/?sort_by=datetime" class="btn btn-primary">Sort by Date</a>
+                <a href="/?sort_by=kudos" class="btn btn-secondary">Sort by Kudos</a>
             </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for repo in repos %}
-                    <div class="list-group-item list-group-item-dark">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><a href="#" class="text-primary">{{ repo.name }}</a></h5>
-                            <small class="text-muted">{{ repo.stars }} stars</small>
-                        </div>
-                        <p class="mb-1">{{ repo.description }}</p>
-                        <small class="text-muted">{{ repo.language }}</small>
-                        <div class="mt-2">
-                            {% for user in repo.built_by %}
-                            <img src="https://via.placeholder.com/30" alt="User {{ user }}" class="rounded-circle">
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
+        </div>
+        <div class="list-group">
+            {% for idea in ideas %}
+            <div class="list-group-item idea-item">
+                <h4 class="idea-name">{{ idea.name }}</h4>
+                <p class="idea-introduction">{{ idea.introduction }}</p>
+                <p class="idea-author">Author: {{ idea.name_1 }}</p>
+                <p class="idea-kudos">Kudos: {{ idea.kudos }}</p>
             </div>
+            {% endfor %}
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
