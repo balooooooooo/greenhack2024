@@ -20,6 +20,7 @@ class Dataset:
         ideas_table = pd.read_excel(self.path, sheet_name='ideas')
         for _, row in ideas_table.iterrows():
             idea = Idea(row)
+            print(vars(idea))
             idea.check_required_ids()
             self.ideas_dict[idea.idea_id] = idea
 
@@ -47,6 +48,12 @@ class Dataset:
     def get_idea_by_id(self, idea_id):
         return self.ideas_dict.get(idea_id)
 
+    def get_comment_by_id(self, comment_id):
+        for comment in self.comments:
+            if comment.comment_id == comment_id:
+                return comment
+        raise ValueError(f"Comment {comment_id} not found.")
+
     def sort_ideas_by_datetime(self):
         return sorted(self.ideas_dict.values(), key=lambda idea: idea.datetime)
 
@@ -67,6 +74,64 @@ class Dataset:
             for idea in self.ideas_dict.values()
         ]
 
+    def add_idea(self, name, introduction, name_1):
+        """
+        Adds a new idea to the dataset.
+        """
+        idea_id = max(self.ideas_dict.keys(), default=0) + 1
+        idea_data = {
+            'name': name,
+            'introduction': introduction,
+            'business_case': " ",
+            'name_1': name_1,
+            'department': " ",
+            'kudos': 0,
+            'status': 'Pending',
+            'datetime': pd.Timestamp(datetime.now()),
+            'idea_id': idea_id,
+            'comments': []
+        }
+        new_idea = Idea(pd.Series(idea_data))
+        self.ideas_dict[idea_id] = new_idea
+        print(f"Added new idea: {new_idea.name} with ID: {new_idea.idea_id}")
+
+    def add_comment(self, idea_id, text):
+        """
+        Adds a new comment to an idea.
+        """
+        if idea_id not in self.ideas_dict:
+            raise ValueError(f"Idea with ID {idea_id} does not exist.")
+
+        comment_id = max([comment.comment_id for comment in self.comments], default=0) + 1
+        comment_data = {
+            'idea_id': idea_id,
+            'comment_id': comment_id,
+            'text': text,
+            'datetime': pd.Timestamp(datetime.now())
+        }
+        new_comment = Comment(pd.Series(comment_data))
+        self.comments.append(new_comment)
+        self.ideas_dict[idea_id].add_comment(new_comment)
+
+
+    def save_to_excel(self):
+        """
+        Save the Dataset back to the Excel file.
+        """
+        # Convert ideas to DataFrame
+        ideas_data = [vars(idea) for idea in self.ideas_dict.values()]
+        ideas_df = pd.DataFrame(ideas_data)
+
+        # Convert comments to DataFrame
+        comments_data = [vars(comment) for comment in self.comments]
+        comments_df = pd.DataFrame(comments_data)
+
+        # Write to Excel
+        with pd.ExcelWriter(self.path) as writer:
+            ideas_df.to_excel(writer, sheet_name='ideas', index=False)
+            comments_df.to_excel(writer, sheet_name='comments', index=False)
+
+
 class BaseEntry:
     """
     Template for comment or idea
@@ -75,6 +140,9 @@ class BaseEntry:
     def __init__(self, row: pd.Series):
         for column in row.index:
             setattr(self, column, row[column])
+
+    def increase_kudos(self):
+        self.kudos += 1
 
     def check_required_ids(self):
         raise NotImplementedError("Subclasses should implement this method")
@@ -101,6 +169,7 @@ class Idea(BaseEntry):
             raise IndexError("Attempted to parse an idea, but column 'datetime' not found")
         if not hasattr(self, 'kudos'):
             raise IndexError("Attempted to parse an idea, but column 'kudos' not found")
+
 
 class Comment(BaseEntry):
     """

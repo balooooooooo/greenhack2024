@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Idea Detail</title>
+</head>
+<body>
+    <h1>{{ idea.name }}</h1>
+    <p>{{ idea.introduction }}</p>
+    <p>Kudos: {{ idea.kudos }}</p>
+    <h2>Comments</h2>
+    {% for comment in idea.get_comments() %}
+        <div>
+            <p>{{ comment.text }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>

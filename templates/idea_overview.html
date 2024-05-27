@@ -1,90 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ideas</title>
+    <link href="../static/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-        body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-        }
-        .d-flex {
-            display: flex;
-        }
-        .justify-content-between {
-            justify-content: space-between;
-        }
-        .mb-3 {
-            margin-bottom: 1rem;
-        }
-        .align-items-center {
-            align-items: center;
-        }
-        h1 {
-            color: #58a6ff;
-        }
-        .btn-group .btn {
-            border: 1px solid #30363d;
-            padding: 10px 20px;
+        .sort-link {
+            color: white;
+            padding: 0.5rem 1rem;
             text-decoration: none;
-            margin-left: 5px;
-            border-radius: 5px;
-            color: #c9d1d9;
+            transition: background-color 0.3s;
         }
-        .btn-primary {
-            background-color: #238636;
-        }
-        .btn-secondary {
-            background-color: #21262d;
-        }
-        .list-group {
-            list-style: none;
-            padding: 0;
-        }
-        .list-group-item {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            padding: 20px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-        }
-        .idea-name {
-            font-size: 1.5em;
-            color: #58a6ff;
-        }
-        .idea-introduction, .idea-author, .idea-kudos {
-            margin: 5px 0;
+
+        .sort-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.25rem;
         }
     </style>
+
+    <script>
+        function increaseKudos(ideaId) {
+            fetch('/increase_kudos/' + ideaId)
+                .then(response => response.text())
+                .then(kudos => {
+                    document.getElementById('kudos-' + ideaId).textContent = kudos;
+                });
+        }
+    </script>
 </head>
-<body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between mb-3 align-items-center">
-            <h1>Ideas</h1>
-            <div class="btn-group" role="group">
-                <a href="/?sort_by=datetime" class="btn btn-primary">Sort by Date</a>
-                <a href="/?sort_by=kudos" class="btn btn-secondary">Sort by Kudos</a>
+
+<body class="bg-gray-900 text-gray-300 font-sans min-h-screen">
+    <div class="grid grid-cols-10">
+        <div class="col-span-10 h-16 bg-blue-600 flex items-center justify-center shadow-md">
+            <h1 class="text-white text-4xl font-semibold">Ideas</h1>
+        </div>
+        <div class="col-span-8 col-start-2 my-4">
+            <div class="flex justify-end space-x-3">
+                <!-- Sort links -->
+                <a href="{{ url_for('index', sort_by='datetime') }}" class="sort-link">Sort by Date</a>
+                <a href="{{ url_for('index', sort_by='kudos') }}" class="sort-link">Sort by Kudos</a>
             </div>
         </div>
-        <div class="list-group">
+        <div class="col-start-2 col-span-8 overflow-auto px-2">
             {% for idea in ideas %}
-            <div class="list-group-item idea-item">
-                <h4 class="idea-name">{{ idea.name }}</h4>
-                <p class="idea-introduction">{{ idea.introduction }}</p>
-                <p class="idea-author">Author: {{ idea.name_1 }}</p>
-                <p class="idea-kudos">Kudos: {{ idea.kudos }}</p>
+            <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg my-4 shadow-lg flex items-center justify-between">
+                <div>
+                    <h4 class="text-blue-500 text-xl mb-2 font-semibold hover:underline">
+                        <a href="{{ url_for('idea', idea_id=idea.idea_id) }}">{{ idea.name }}</a>
+                    </h4>
+                    <p class="text-gray-300 text-sm">{{ idea.introduction }}</p>
+                    <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
+                </div>
+                <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-500" onclick="increaseKudos({{ idea.idea_id }})">
+                    <i class="fas fa-heart"></i>
+                    <p id="kudos-{{ idea.idea_id }}" class="font-semibold">{{ idea.kudos }}</p>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 </body>
+
 </html>
