@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review and Submit</title>
+</head>
+<body>
+    <h1>Review Your Proposal</h1>
+    <p>Before you submit, check that the proposal is not duplicated:</p>
+    <ul>
+        {% for proposal in similar_proposals %}
+        <li>{{ proposal }}</li>
+        {% endfor %}
+    </ul>
+    <form method="POST" action="/review">
+        <button type="submit" name="submit">Submit Form</button>
+        <button type="submit" name="cancel">I changed my mind</button>
+    </form>
+</body>
+</html>
