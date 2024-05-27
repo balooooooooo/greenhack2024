@@ -2,8 +2,9 @@
 
 
 
-def main():
+def get_similar(idea):
 """TODO"""
+
 
 
 
