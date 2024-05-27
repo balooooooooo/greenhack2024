@@ -20,6 +20,19 @@
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 0.25rem;
         }
+
+        .btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+        }
     </style>
 
     <script>
@@ -38,12 +51,13 @@
         <div class="col-span-10 h-16 bg-blue-600 flex items-center justify-center shadow-md">
             <h1 class="text-white text-4xl font-semibold">Ideas</h1>
         </div>
-        <div class="col-span-8 col-start-2 my-4">
+        <div class="col-span-8 col-start-2 my-4 flex justify-between items-center">
             <div class="flex justify-end space-x-3">
                 <!-- Sort links -->
                 <a href="{{ url_for('index', sort_by='datetime') }}" class="sort-link">Sort by Date</a>
                 <a href="{{ url_for('index', sort_by='kudos') }}" class="sort-link">Sort by Kudos</a>
             </div>
+            <a href="{{ url_for('form') }}" class="btn">Submit a Proposal</a>
         </div>
         <div class="col-start-2 col-span-8 overflow-auto px-2">
             {% for idea in ideas %}
