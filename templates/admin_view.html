@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin View</title>
+    <link href="../static/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="bg-gray-900 text-gray-300 font-sans min-h-screen">
+    <div class="grid grid-cols-10">
+        <div class="fixed w-full h-12 bg-black flex items-center justify-end shadow-md text-gray-300">
+            <div class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+                Admin view
+            </div>
+            <div class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+                <a href="{{ url_for('form') }}">Submit proposal</a>
+            </div>
+        </div>
+        <div class="col-span-10 mx-8 mt-16">
+            <h1 class="text-white text-2xl font-bold">
+                <form id="admin-form" action="{{ url_for('admin_view', idea_id=idea.idea_id) }}" method="POST">
+                    <input class="bg-gray-900" type="text" name="name" value="{{ idea.name }}">
+                </form>
+            </h1>
+            <div class="flex">
+                <p class="text-gray-400 text-sm mt-2">Author: <input class="bg-gray-900" type="text" name="name_1" value="{{ idea.name_1 }}"></p>
+                <p class="text-gray-400 text-sm mt-2 ml-2">Date: {{ idea.datetime.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            <p class="text-md text-gray-200 mt-4">
+                Introduction <textarea class="bg-gray-800 w-full" rows="4" name="introduction">{{ idea.introduction }}</textarea>
+            </p>
+        </div>
+        <div class="col-span-10 mx-8 mt-2">
+            <div class="grid grid-cols-5 gap-4">
+                <!-- Dropdown for Stav -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Stav</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="status">
+                            <option value="" disabled>Select Stav</option>
+                            <option value="Nový" {{ 'selected' if idea.status == 'Nový' else '' }}>Nový</option>
+                            <option value="Aktivní" {{ 'selected' if idea.status == 'Aktivní' else '' }}>Aktivní</option>
+                            <option value="Odložený" {{ 'selected' if idea.status == 'Odložený' else '' }}>Odložený</option>
+                            <option value="Dokončený" {{ 'selected' if idea.status == 'Dokončený' else '' }}>Dokončený</option>
+                            <option value="V soutěži" {{ 'selected' if idea.status == 'V soutěži' else '' }}>V soutěži</option>
+                            <option value="Zrušený" {{ 'selected' if idea.status == 'Zrušený' else '' }}>Zrušený</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Typ Aktivity -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Typ Aktivity</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="type_activity">
+                            <option value="" disabled>Select Typ Aktivity</option>
+                            <option value="Trend" {{ 'selected' if idea.type_activity == 'Trend' else '' }}>Trend</option>
+                            <option value="Studie" {{ 'selected' if idea.type_activity == 'Studie' else '' }}>Studie</option>
+                            <option value="Idea" {{ 'selected' if idea.type_activity == 'Idea' else '' }}>Idea</option>
+                            <option value="Rešerše" {{ 'selected' if idea.type_activity == 'Rešerše' else '' }}>Rešerše</option>
+                            <option value="Studie proveditelnosti" {{ 'selected' if idea.type_activity == 'Studie proveditelnosti' else '' }}>Studie proveditelnosti</option>
+                            <option value="P                            ilot" {{ 'selected' if idea.type_activity == 'Pilot' else '' }}>Pilot</option>
+                            <option value="Reporting" {{ 'selected' if idea.type_activity == 'Reporting' else '' }}>Reporting</option>
+                            <option value="Strategický úkol" {{ 'selected' if idea.type_activity == 'Strategický úkol' else '' }}>Strategický úkol</option>
+                            <option value="Realizace" {{ 'selected' if idea.type_activity == 'Realizace' else '' }}>Realizace</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Riziko -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Riziko</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="risk">
+                            <option value="" disabled>Select Riziko</option>
+                            <option value="Nízké" {{ 'selected' if idea.risk == 'Nízké' else '' }}>Nízké</option>
+                            <option value="Střední" {{ 'selected' if idea.risk == 'Střední' else '' }}>Střední</option>
+                            <option value="Vysoké" {{ 'selected' if idea.risk == 'Vysoké' else '' }}>Vysoké</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Priorita -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Priorita</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="priority">
+                            <option value="" disabled>Select Priorita</option>
+                            <option value="Nízké" {{ 'selected' if idea.priority == 'Nízké' else '' }}>Nízké</option>
+                            <option value="Střední" {{ 'selected' if idea.priority == 'Střední' else '' }}>Střední</option>
+                            <option value="Vysoké" {{ 'selected' if idea.priority == 'Vysoké' else '' }}>Vysoké</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Přínosy -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Přínosy</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="benefits">
+                            <option value="" disabled>Select Přínosy</option>
+                            <option value="<1 mil" {{ 'selected' if idea.benefits == '<1 mil' else '' }}>&lt;1 mil</option>
+                            <option value="1-5 mil" {{ 'selected' if idea.benefits == '1-5 mil' else '' }}>1 - 5 mil</option>
+                            <option value="5-20 mil" {{ 'selected' if idea.benefits == '5-20 mil' else '' }}>5 - 20 mil</option>
+                            <option value=">20 mil" {{ 'selected' if idea.benefits == '>20 mil' else '' }}>&gt;20 mil</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Digitální a Inovační trend -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Digitální a Inovační trend</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="digital_trend">
+                            <option value="" disabled>Select Digitální a Inovační trend</option>
+                            <option value="5G (IoT)" {{ 'selected' if idea.digital_trend == '5G (IoT)' else '' }}>5G (IoT)</option>
+                            <option value="Autonomní létání - Drony" {{ 'selected' if idea.digital_trend == 'Autonomní létání - Drony' else '' }}>Autonomní létání - Drony</option>
+                            <option value="Bezpečnost" {{ 'selected' if idea.digital_trend == 'Bezpečnost' else '' }}>Bezpečnost</option>
+                            <option value="Big Data" {{ 'selected' if idea.digital_trend == 'Big Data' else '' }}>Big Data</option>
+                            <option value="Blockchain" {{ 'selected' if idea.digital_trend == 'Blockchain' else '' }}>Blockchain</option>
+                            <option value="Datový model a datová analytika" {{ 'selected' if idea.digital_trend == 'Datový model a datová analytika' else '' }}>Datový model a datová analytika</option>
+                            <option value="Digitální dvojče (Digital Twin)" {{ 'selected' if idea.digital_trend == 'Digitální dvojče (Digital Twin)' else '' }}>Digitální dvojče (Digital Twin)</option>
+                            <option value="Prediktivní údržba" {{ 'selected' if idea.digital_trend == 'Prediktivní údržba' else '' }}>Prediktivní údržba</option>
+                            <option value="Robotizace a automatizace" {{ 'selected' if idea.digital_trend == 'Robotizace a automatizace' else '' }}>Robotizace a automatizace</option>
+                            <option value="Umělá inteligence, Strojové učení a Rozpoznávání obrazů" {{ 'selected' if idea.digital_trend == 'Umělá inteligence, Strojové učení a Rozpoznávání obrazů' else '' }}>Umělá inteligence, Strojové učení a Rozpoznávání obrazů</option>
+                            <option value="Virtuální a rozšířená realita" {{ 'selected' if idea.digital_trend == 'Virtuální a rozšířená realita' else '' }}>Virtuální a rozšířená realita</option>
+                            <option value="Wide Area Monitoring Systém (WAMS)" {{ 'selected' if idea.digital_trend == 'Wide Area Monitoring Systém (WAMS)' else '' }}>Wide Area Monitoring Systém (WAMS)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Očekávaná Maturity -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Očekávaná Maturity</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="expected_maturity">
+                            <option value="" disabled>Select Očekávaná Maturity</option>
+                            <option value="<6 měsíců" {{ 'selected' if idea.expected_maturity == '<6 měsíců' else '' }}>&lt;6 měsíců</option>
+                            <option value="6-12 měsíců" {{ 'selected' if idea.expected_maturity == '6-12 měsíců' else '' }}>6-12 měsíců</option>
+                            <option value="12-18 měsíců" {{ 'selected' if idea.expected_maturity == '12-18 měsíců' else '' }}>12-18 měsíců</option>
+                            <option value="18-24 měsíců" {{ 'selected' if idea.expected_maturity == '18-24 měsíců' else '' }}>18-24 měsíců</option>
+                            <option value=">24 měsíců" {{ 'selected' if idea.expected_maturity == '>24 měsíců' else '' }}>&gt;24 měsíců</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for Očekávaná FTE -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Očekávaná FTE</h4>
+                    </div>
+                    <div class="pt-1">
+                        <select class="w-full bg-gray-800 text-white rounded-lg py-2 px-3" name="expected_fte">
+                            <option value="" disabled>Select Očekávaná FTE</option>
+                            <option value="0.5 FTE" {{ 'selected' if idea.expected_fte == '0.5 FTE' else '' }}>0.5 FTE</option>
+                            <option value="1 FTE" {{ 'selected' if idea.expected_fte == '1 FTE' else '' }}>1 FTE</option>
+                            <option value="2 FTE" {{ 'selected' if idea.expected_fte == '2 FTE' else '' }}>2 FTE</option>
+                            <option value="3 FTE" {{ 'selected' if idea.expected_fte == '3 FTE' else '' }}>3 FTE</option>
+                            <option value="4 FTE" {{ 'selected' if idea.expected_fte == '4 FTE' else '' }}>4 FTE</option>
+                            <option value="5 FTE" {{ 'selected' if idea.expected_fte == '5 FTE' else '' }}>5 FTE</option>
+                            <option value=">5 FTE" {{ 'selected' if idea.expected_fte == '>5 FTE' else '' }}>&gt;5 FTE</option>
+                        </select>
+                    </div>
+                </div>
+                                <!-- Key Partners -->
+                <div class="w-full">
+                    <div class="flex pb-1 border-b border-white text-white font-semibold items-center">
+                        <h4>Detaily k cíly</h4>
+                    </div>
+                    <div class="pt-1">
+                        <textarea class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" rows="4" name="key_partners">{{ idea.key_partners }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+

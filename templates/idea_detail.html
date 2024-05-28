@@ -1,17 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Idea Detail</title>
+    <link href="../static/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
-    <h1>{{ idea.name }}</h1>
-    <p>{{ idea.introduction }}</p>
-    <p>Kudos: {{ idea.kudos }}</p>
-    <h2>Comments</h2>
-    {% for comment in idea.get_comments() %}
-        <div>
-            <p>{{ comment.text }}</p>
+<body class="bg-gray-900 text-gray-300 font-sans min-h-screen">
+    <div class="grid grid-cols-10">
+        <div class="col-span-10 h-12 bg-black flex items-center justify-end shadow-md text-gray-300">
+            <a href="{{ url_for('index') }}" class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+                Idea overview
+            </a>
+        <a href="{{ url_for('admin_view', idea_id=idea.idea_id) }}" class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+            Admin view
+        </a>
+
         </div>
-    {% endfor %}
+        <div class="col-span-10 mx-8 mt-4 flex justify-between">
+            <div class="mr-12">
+                <div class="flex items-end">
+                    <h1 class="text-white text-2xl font-bold">{{ idea.name }}</h1>
+                    <div class="flex items-center ml-4">
+                        <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                        <h4 class="font-semibold text-white ml-2 text-lg">{{ idea.status }}</h4>
+                    </div>
+                </div>
+                <div class="flex">
+                    <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
+                    <p class="text-gray-400 text-sm mt-2 ml-2">Date: {{ idea.datetime.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+                <p class="text-md text-gray-200 mt-4">{{ idea.introduction }}</p>
+            </div>
+            <div class="flex text-lg items-center space-x-2 cursor-pointer text-white hover:text-blue-500">
+                <i class="fas fa-heart"></i>
+                <p id="kudos-{{ idea.idea_id }}" class="font-semibold">{{ idea.kudos }}</p>
+            </div>
+        </div>
+        <div class="col-span-10 mx-8 mt-4 flex space-x-3">
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Stav</h4>
+                <div class="pt-1">{{ idea.business_case }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Typ Aktivity</h4>
+                <div class="pt-1">{{ idea.typ_aktivity }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Riziko</h4>
+                <div class="pt-1">{{ idea.riziko }}</div>
+            </div>
+        </div>
+        <div class="col-span-10 mx-8 mt-4 flex space-x-3">
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Priorita</h4>
+                <div class="pt-1">{{ idea.priorita }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Přínosy</h4>
+                <div class="pt-1">{{ idea.prinosy }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Digitální a Inovační trend</h4>
+                <div class="pt-1">{{ idea.digitalni_inovacni_trend }}</div>
+            </div>
+        </div>
+        <div class="col-span-10 mx-8 mt-4 flex space-x-3">
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Cílový útvar</h4>
+                <div class="pt-1">{{ idea.cilovy_utvar }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Strategické cíle</h4>
+                <div class="pt-1">{{ idea.strategicke_cile }}</div>
+            </div>
+            <div class="w-1/3">
+                <h4 class="pb-1 border-b border-white text-white font-semibold">Detaily k cíly</h4>
+                <div class="pt-1">{{ idea.detaily_k_cily }}</div>
+            </div>
+        </div>
+        <div class="col-span-10 mx-8 mt-8">
+            <div class="text-lg font-semibold text-white border-gray-500 pb-1">Comments</div>
+            <div>
+                {% for comment in comments %}
+                <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg my-4 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-300 text-sm">{{ comment.text }}</p>
+                        <div class="flex">
+                            <p class="text-gray-400 text-sm mt-2">Date: {{ comment.datetime }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-500" onclick="increaseCommentKudos({{ comment.comment_id }})">
+                        <i class="fas fa-heart"></i>
+                        <p id="kudos-{{ comment.comment_id }}" class="font-semibold">{{ comment.kudos }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                <form action="{{ url_for('idea', idea_id=idea.idea_id) }}" method="POST">
+                    <div class="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                        <div class="px-4 py-2 bg-white rounded-t-lg dark:bg-gray-800">
+                            <label for="comment" class="sr-only">Your comment</label>
+                            <textarea id="comment" name="text" rows="2" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a comment..." required></textarea>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
+                            <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">Post comment</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function increaseCommentKudos(commentId) {
+            fetch(`/increase_comment_kudos/${commentId}`)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById(`kudos-${commentId}`).innerText = data;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 </html>

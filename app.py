@@ -3,12 +3,12 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 from dataset_parsing import Dataset
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'o;rughzdfngkjeirurgh'
 
 dataset = Dataset('dataset.xlsx')
-
 
 # Define the forms
 class ProposalForm(FlaskForm):
@@ -38,7 +38,8 @@ def index():
             'introduction': idea.introduction,
             'name_1': idea.name_1,
             'kudos': idea.kudos,
-            'status': idea.status
+            'status': idea.status,
+            'date': idea.datetime.strftime('%d/%m/%Y %H:%M')
         }
         for idea in ideas
     ]
@@ -65,58 +66,57 @@ def increase_comment_kudos(comment_id):
         return str(comment.kudos)
     return "Comment not found", 404
 
-@app.route('/idea/<idea_id>')
+@app.route('/idea/<int:idea_id>', methods=['GET', 'POST'])
 def idea(idea_id):
-    idea_id = int(idea_id)
     idea = dataset.get_idea_by_id(idea_id)
-    if idea:
-        return render_template('idea_detail.html', idea=idea)
-    else:
+    if not idea:
         return "Idea not found", 404
+
+    if request.method == 'POST':
+        text = request.form['text']
+        dataset.add_comment(idea_id, text)
+        dataset.save_to_excel()
+        return redirect(url_for('idea', idea_id=idea_id))
+
+    comments_info = [
+        {
+            'comment_id': comment.comment_id,
+            'text': comment.text,
+            'kudos': comment.kudos,
+            'datetime': comment.datetime.strftime('%d/%m/%Y %H:%M')
+        }
+        for comment in idea.comments
+    ]
+
+    return render_template('idea_detail.html', idea=idea, comments=comments_info)
 
 @app.route('/add_idea', methods=['GET', 'POST'])
 def add_idea():
     if request.method == 'POST':
         name = request.form['name']
         introduction = request.form['introduction']
-        business_case = request.form['business_case']
         name_1 = request.form['name_1']
-        department = request.form['department']
 
-        dataset.add_idea(name, introduction, business_case, name_1, department)
+        idea_id = dataset.add_idea(name, introduction, name_1)
         dataset.save_to_excel()
-        return redirect(url_for('index'))
-    return render_template('add_idea.html')
 
-@app.route('/add_comment/<idea_id>', methods=['GET', 'POST'])
-def add_comment(idea_id):
-    idea_id = int(idea_id)
-    if request.method == 'POST':
-        text = request.form['text']
-
-        dataset.add_comment(idea_id, text)
-        dataset.save_to_excel()
         return redirect(url_for('idea', idea_id=idea_id))
-    return render_template('add_comment.html', idea_id=idea_id)
-
+    return render_template('idea_detail.html')
 
 @app.route('/proposal', methods=['GET', 'POST'])
 def form():
     form = ProposalForm()
     if form.validate_on_submit():
-        # Store the data from the first form in session
         session['name'] = form.name.data
         session['title'] = form.title.data
         session['text'] = form.text.data
         return redirect(url_for('details'))
     return render_template('form.html', form=form)
 
-
 @app.route('/details', methods=['GET', 'POST'])
 def details():
     form = DetailsForm()
     if form.validate_on_submit():
-        # Store the data from the second form in session
         session['activities'] = form.activities.data
         session['resources'] = form.resources.data
         session['value_propositions'] = form.value_propositions.data
@@ -126,23 +126,47 @@ def details():
 @app.route('/review', methods=['GET', 'POST'])
 def review():
     if request.method == 'POST':
-        # Process the final submission
         if 'submit' in request.form:
             flash('Form submitted successfully!')
-            # Clear the session after submission
             session.clear()
             return redirect(url_for('success'))
         elif 'cancel' in request.form:
-            # Clear the session and redirect to the first form
             session.clear()
             return redirect(url_for('form'))
-    # Placeholder similar proposals
     similar_proposals = ["Similar Proposal 1", "Similar Proposal 2", "Similar Proposal 3"]
     return render_template('review.html', similar_proposals=similar_proposals)
 
 @app.route('/success')
 def success():
     return render_template('success.html')
+
+@app.route('/admin_view/<int:idea_id>', methods=['GET', 'POST'])
+def admin_view(idea_id):
+    idea = dataset.get_idea_by_id(idea_id)
+    if not idea:
+        return "Idea not found", 404
+
+    if request.method == 'POST':
+        idea.name = request.form.get('name')
+        idea.name_1 = request.form.get('name_1')
+        idea.introduction = request.form.get('introduction')
+        idea.key_partners = request.form.get('key_partners')
+        idea.status = request.form.get('status')
+        idea.type_activity = request.form.get('type_activity')
+        idea.risk = request.form.get('risk')
+        idea.priority = request.form.get('priority')
+        idea.benefits = request.form.get('benefits')
+        idea.digital_trend = request.form.get('digital_trend')
+        idea.expected_maturity = request.form.get('expected_maturity')
+        idea.expected_fte = request.form.get('expected_fte')
+
+        dataset.save_to_excel()  # Save changes to the backend
+        flash('Proposal updated successfully!')
+        return redirect(url_for('admin_view', idea_id=idea_id))
+
+    return render_template('admin_view.html', idea=idea)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

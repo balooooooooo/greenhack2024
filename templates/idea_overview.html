@@ -20,19 +20,6 @@
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 0.25rem;
         }
-
-        .btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border-radius: 0.25rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #2563eb;
-        }
     </style>
 
     <script>
@@ -48,26 +35,67 @@
 
 <body class="bg-gray-900 text-gray-300 font-sans min-h-screen">
     <div class="grid grid-cols-10">
-        <div class="col-span-10 h-16 bg-blue-600 flex items-center justify-center shadow-md">
+        <div class="col-span-10 h-12 bg-black flex items-center justify-end shadow-md text-gray-300">
+            <div class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+                Admin view
+            </div>
+            <div class="text-md flex items-center px-8 h-full cursor-pointer hover:underline hover:text-white">
+                <a href="{{ url_for('form') }}">Submit proposal</a>
+            </div>
+        </div>
+        <div class="col-span-10 h-40 flex items-center justify-center">
             <h1 class="text-white text-4xl font-semibold">Ideas</h1>
         </div>
-        <div class="col-span-8 col-start-2 my-4 flex justify-between items-center">
+        <div class="col-span-8 col-start-2 my-4">
             <div class="flex justify-end space-x-3">
                 <!-- Sort links -->
                 <a href="{{ url_for('index', sort_by='datetime') }}" class="sort-link">Sort by Date</a>
                 <a href="{{ url_for('index', sort_by='kudos') }}" class="sort-link">Sort by Kudos</a>
             </div>
-            <a href="{{ url_for('form') }}" class="btn">Submit a Proposal</a>
         </div>
         <div class="col-start-2 col-span-8 overflow-auto px-2">
             {% for idea in ideas %}
             <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg my-4 shadow-lg flex items-center justify-between">
                 <div>
-                    <h4 class="text-blue-500 text-xl mb-2 font-semibold hover:underline">
-                        <a href="{{ url_for('idea', idea_id=idea.idea_id) }}">{{ idea.name }}</a>
-                    </h4>
+                    <div class="flex items-end mb-2">
+                        <h4 class="text-blue-500 text-xl font-semibold hover:underline">
+                            <a href="{{ url_for('idea', idea_id=idea.idea_id) }}">{{ idea.name }}</a>
+                        </h4>
+                        {% if idea.status == 'pending' %}
+                        <div class="flex items-center ml-2">
+                            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                            <h4 class="font-semibold text-white ml-1 text-sm">
+                                Pending
+                            </h4>
+                        </div>
+                        {% elif idea.status == 'denied' %}
+                        <div class="flex items-center ml-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <h4 class="font-semibold text-white ml-1 text-sm">
+                                Denied
+                            </h4>
+                        </div>
+                        {% elif idea.status == 'active' %}
+                        <div class="flex items-center ml-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                            <h4 class="font-semibold text-white ml-1 text-sm">
+                                Active
+                            </h4>
+                        </div>
+                        {% elif idea.status == 'realized' %}
+                        <div class="flex items-center ml-2">
+                            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <h4 class="font-semibold text-white ml-1 text-sm">
+                                Realized
+                            </h4>
+                        </div>
+                        {% endif %}
+                    </div>
                     <p class="text-gray-300 text-sm">{{ idea.introduction }}</p>
-                    <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
+                    <div class="flex">
+                        <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
+                        <p class="text-gray-400 text-sm mt-2 ml-2">Date: {{ idea.date }}</p>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-500" onclick="increaseKudos({{ idea.idea_id }})">
                     <i class="fas fa-heart"></i>

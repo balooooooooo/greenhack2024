@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 
+
 class Dataset:
     """
     Class for handling datasets containing both ideas and comments.
@@ -20,7 +21,6 @@ class Dataset:
         ideas_table = pd.read_excel(self.path, sheet_name='ideas')
         for _, row in ideas_table.iterrows():
             idea = Idea(row)
-            print(vars(idea))
             idea.check_required_ids()
             self.ideas_dict[idea.idea_id] = idea
 
@@ -86,7 +86,7 @@ class Dataset:
             'name_1': name_1,
             'department': " ",
             'kudos': 0,
-            'status': 'Pending',
+            'status': 'pending',
             'datetime': pd.Timestamp(datetime.now()),
             'idea_id': idea_id,
             'comments': []
@@ -94,6 +94,8 @@ class Dataset:
         new_idea = Idea(pd.Series(idea_data))
         self.ideas_dict[idea_id] = new_idea
         print(f"Added new idea: {new_idea.name} with ID: {new_idea.idea_id}")
+        return new_idea.idea_id
+
 
     def add_comment(self, idea_id, text):
         """
@@ -104,9 +106,10 @@ class Dataset:
 
         comment_id = max([comment.comment_id for comment in self.comments], default=0) + 1
         comment_data = {
-            'idea_id': idea_id,
             'comment_id': comment_id,
+            'idea_id': idea_id,
             'text': text,
+            'kudos': 0,
             'datetime': pd.Timestamp(datetime.now())
         }
         new_comment = Comment(pd.Series(comment_data))
@@ -146,6 +149,7 @@ class BaseEntry:
 
     def check_required_ids(self):
         raise NotImplementedError("Subclasses should implement this method")
+
 
 class Idea(BaseEntry):
     """
