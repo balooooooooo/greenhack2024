@@ -54,55 +54,52 @@
             </div>
         </div>
         <div class="col-start-2 col-span-8 overflow-auto px-2">
-            {% for idea in ideas %}
-            <div class="bg-gray-800 border border-gray-700 p-4 rounded-lg my-4 shadow-lg flex items-center justify-between">
-                <div>
-                    <div class="flex items-end mb-2">
-                        <h4 class="text-blue-500 text-xl font-semibold hover:underline">
-                            <a href="{{ url_for('idea', idea_id=idea.idea_id) }}">{{ idea.name }}</a>
-                        </h4>
-                        {% if idea.status == 'pending' %}
-                        <div class="flex items-center ml-2">
-                            <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
-                            <h4 class="font-semibold text-white ml-1 text-sm">
-                                Pending
-                            </h4>
-                        </div>
-                        {% elif idea.status == 'denied' %}
-                        <div class="flex items-center ml-2">
-                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                            <h4 class="font-semibold text-white ml-1 text-sm">
-                                Denied
-                            </h4>
-                        </div>
-                        {% elif idea.status == 'active' %}
-                        <div class="flex items-center ml-2">
-                            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <h4 class="font-semibold text-white ml-1 text-sm">
-                                Active
-                            </h4>
-                        </div>
-                        {% elif idea.status == 'realized' %}
-                        <div class="flex items-center ml-2">
-                            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                            <h4 class="font-semibold text-white ml-1 text-sm">
-                                Realized
-                            </h4>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <p class="text-gray-300 text-sm">{{ idea.introduction }}</p>
-                    <div class="flex">
-                        <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
-                        <p class="text-gray-400 text-sm mt-2 ml-2">Date: {{ idea.date }}</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-500" onclick="increaseKudos({{ idea.idea_id }})">
-                    <i class="fas fa-heart"></i>
-                    <p id="kudos-{{ idea.idea_id }}" class="font-semibold">{{ idea.kudos }}</p>
-                </div>
+{% for idea in ideas %}
+<div class="bg-gray-800 border border-gray-700 p-4 rounded-lg my-4 shadow-lg flex items-center justify-between">
+    <div>
+        <div class="flex items-end mb-2">
+            <h4 class="text-blue-500 text-xl font-semibold hover:underline">
+                <a href="{{ url_for('idea', idea_id=idea.idea_id) }}">{{ idea.name }}</a>
+            </h4>
+            {% if idea.stav %}
+            <div class="flex items-center ml-2">
+                {% if idea.stav == 'Nový' %}
+                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">Nový</h4>
+                {% elif idea.stav == 'Aktivní' %}
+                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">Aktivní</h4>
+                {% elif idea.stav == 'Odložený' %}
+                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">Odložený</h4>
+                {% elif idea.stav == 'Dokončený' %}
+                <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">Dokončený</h4>
+                {% elif idea.stav == 'V soutěži' %}
+                <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">V soutěži</h4>
+                {% elif idea.stav == 'Zrušený' %}
+                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                <h4 class="font-semibold text-white ml-1 text-sm">Zrušený</h4>
+                {% endif %}
             </div>
-            {% endfor %}
+            {% endif %}
+        </div>
+        <p class="text-gray-300 text-sm">{{ idea.introduction }}</p>
+        <div class="flex">
+            <p class="text-gray-400 text-sm mt-2">Author: {{ idea.name_1 }}</p>
+            <p class="text-gray-400 text-sm mt-2 ml-2">Date: {{ idea.date }}</p>
+        </div>
+    </div>
+    <div class="flex items-center space-x-2 cursor-pointer hover:text-blue-500" onclick="increaseKudos({{ idea.idea_id }})">
+        <i class="fas fa-heart"></i>
+        <p id="kudos-{{ idea.idea_id }}" class="font-semibold">{{ idea.kudos }}</p>
+    </div>
+</div>
+{% endfor %}
+
+
+
         </div>
     </div>
 </body>

@@ -6,7 +6,7 @@ from dataset_parsing import Dataset
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'o;rughzdfngkjeirurgh'
+app.config['SECRET_KEY'] = 'your_secret_key'
 
 dataset = Dataset('dataset.xlsx')
 
@@ -22,73 +22,6 @@ class DetailsForm(FlaskForm):
     resources = TextAreaField('Required Resources')
     value_propositions = TextAreaField('Value Propositions')
     next = SubmitField('Next')
-
-@app.route('/')
-def index():
-    sort_by = request.args.get('sort_by', 'datetime')
-    if sort_by == 'kudos':
-        ideas = dataset.sort_ideas_by_kudos()
-    else:
-        ideas = dataset.sort_ideas_by_datetime()
-
-    ideas_info = [
-        {
-            'idea_id': idea.idea_id,
-            'name': idea.name,
-            'introduction': idea.introduction,
-            'name_1': idea.name_1,
-            'kudos': idea.kudos,
-            'status': idea.status,
-            'date': idea.datetime.strftime('%d/%m/%Y %H:%M')
-        }
-        for idea in ideas
-    ]
-
-    return render_template('idea_overview.html', ideas=ideas_info)
-
-@app.route('/increase_kudos/<idea_id>')
-def increase_kudos(idea_id):
-    idea_id = int(idea_id)
-    idea = dataset.get_idea_by_id(idea_id)
-    if idea:
-        idea.increase_kudos()
-        dataset.save_to_excel()
-        return str(idea.kudos)
-    return "Idea not found", 404
-
-@app.route('/increase_comment_kudos/<comment_id>')
-def increase_comment_kudos(comment_id):
-    comment_id = int(comment_id)
-    comment = dataset.get_comment_by_id(comment_id)
-    if comment:
-        comment.increase_kudos()
-        dataset.save_to_excel()
-        return str(comment.kudos)
-    return "Comment not found", 404
-
-@app.route('/idea/<int:idea_id>', methods=['GET', 'POST'])
-def idea(idea_id):
-    idea = dataset.get_idea_by_id(idea_id)
-    if not idea:
-        return "Idea not found", 404
-
-    if request.method == 'POST':
-        text = request.form['text']
-        dataset.add_comment(idea_id, text)
-        dataset.save_to_excel()
-        return redirect(url_for('idea', idea_id=idea_id))
-
-    comments_info = [
-        {
-            'comment_id': comment.comment_id,
-            'text': comment.text,
-            'kudos': comment.kudos,
-            'datetime': comment.datetime.strftime('%d/%m/%Y %H:%M')
-        }
-        for comment in idea.comments
-    ]
-
-    return render_template('idea_detail.html', idea=idea, comments=comments_info)
 
 @app.route('/add_idea', methods=['GET', 'POST'])
 def add_idea():
@@ -140,6 +73,75 @@ def review():
 def success():
     return render_template('success.html')
 
+@app.route('/')
+def index():
+    sort_by = request.args.get('sort_by', 'datetime')
+    if sort_by == 'kudos':
+        ideas = dataset.sort_ideas_by_kudos()
+    else:
+        ideas = dataset.sort_ideas_by_datetime()
+
+    ideas_info = [
+        {
+            'idea_id': idea.idea_id,
+            'name': idea.name,
+            'introduction': idea.introduction,
+            'name_1': idea.name_1,
+            'kudos': idea.kudos,
+            'stav': idea.stav,
+            'date': idea.datetime.strftime('%d/%m/%Y %H:%M')
+        }
+        for idea in ideas
+    ]
+
+    return render_template('idea_overview.html', ideas=ideas_info)
+
+
+@app.route('/increase_kudos/<idea_id>')
+def increase_kudos(idea_id):
+    idea_id = int(idea_id)
+    idea = dataset.get_idea_by_id(idea_id)
+    if idea:
+        idea.increase_kudos()
+        dataset.save_to_excel()
+        return str(idea.kudos)
+    return "Idea not found", 404
+
+@app.route('/increase_comment_kudos/<comment_id>')
+def increase_comment_kudos(comment_id):
+    comment_id = int(comment_id)
+    comment = dataset.get_comment_by_id(comment_id)
+    if comment:
+        comment.increase_kudos()
+        dataset.save_to_excel()
+        return str(comment.kudos)
+    return "Comment not found", 404
+
+@app.route('/idea/<int:idea_id>', methods=['GET', 'POST'])
+def idea(idea_id):
+    idea = dataset.get_idea_by_id(idea_id)
+    if not idea:
+        return "Idea not found", 404
+
+    if request.method == 'POST':
+        text = request.form['text']
+        dataset.add_comment(idea_id, text)
+        dataset.save_to_excel()
+        return redirect(url_for('idea', idea_id=idea_id))
+
+    comments_info = [
+        {
+            'comment_id': comment.comment_id,
+            'text': comment.text,
+            'kudos': comment.kudos,
+            'datetime': comment.datetime.strftime('%d/%m/%Y %H:%M')
+        }
+        for comment in idea.comments
+    ]
+
+    return render_template('idea_detail.html', idea=idea, comments=comments_info)
+
+
 @app.route('/admin_view/<int:idea_id>', methods=['GET', 'POST'])
 def admin_view(idea_id):
     idea = dataset.get_idea_by_id(idea_id)
@@ -150,22 +152,22 @@ def admin_view(idea_id):
         idea.name = request.form.get('name')
         idea.name_1 = request.form.get('name_1')
         idea.introduction = request.form.get('introduction')
-        idea.key_partners = request.form.get('key_partners')
-        idea.status = request.form.get('status')
-        idea.type_activity = request.form.get('type_activity')
-        idea.risk = request.form.get('risk')
-        idea.priority = request.form.get('priority')
+        idea.stav = request.form.get('stav')
+        idea.typ_aktivity = request.form.get('typ_aktivity')
+        idea.riziko = request.form.get('riziko')
+        idea.priorita = request.form.get('priorita')
         idea.benefits = request.form.get('benefits')
-        idea.digital_trend = request.form.get('digital_trend')
-        idea.expected_maturity = request.form.get('expected_maturity')
-        idea.expected_fte = request.form.get('expected_fte')
+        idea.key_partners = request.form.get('key_partners')
+        idea.digitalni_trend = request.form.get('digitalni_trend')
+        idea.detaily_k_cily = request.form.get('detaily_k_cily')
+        idea.strategicke_cile = request.form.get('strategicke_cile')
 
+        print(str(vars(idea)).encode('utf-8'))
         dataset.save_to_excel()  # Save changes to the backend
         flash('Proposal updated successfully!')
-        return redirect(url_for('admin_view', idea_id=idea_id))
+        return redirect(url_for('idea', idea_id=idea_id))
 
     return render_template('admin_view.html', idea=idea)
-
 
 
 if __name__ == '__main__':

@@ -86,7 +86,7 @@ class Dataset:
             'name_1': name_1,
             'department': " ",
             'kudos': 0,
-            'status': 'pending',
+            'stav': 'Nový',
             'datetime': pd.Timestamp(datetime.now()),
             'idea_id': idea_id,
             'comments': []
@@ -173,6 +173,13 @@ class Idea(BaseEntry):
             raise IndexError("Attempted to parse an idea, but column 'datetime' not found")
         if not hasattr(self, 'kudos'):
             raise IndexError("Attempted to parse an idea, but column 'kudos' not found")
+
+    def update_or_create_attributes(self, attr_dict):
+        """
+        Update the values of an idea or create new attributes.
+        """
+        for attr, value in attr_dict.items():
+            setattr(self, attr, value)
 
 
 class Comment(BaseEntry):
